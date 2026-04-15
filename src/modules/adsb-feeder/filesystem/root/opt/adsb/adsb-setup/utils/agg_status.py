@@ -99,7 +99,8 @@ class AggStatus:
             filename = f"{mconf.split(',')[1]}:{mconf.split(',')[2]}.json"
             path = f"{self.uf_path()}/mlat-client/{filename}"
         try:
-            mlat_json = json.load(open(path, "r"))
+            with open(path, "r") as f:
+                mlat_json = json.load(f)
             percent_good = mlat_json.get("good_sync_percentage_last_hour", 0)
             percent_bad = mlat_json.get("bad_sync_percentage_last_hour", 0)
             now = mlat_json.get("now")
@@ -132,7 +133,8 @@ class AggStatus:
         pattern = f"readsb_net_connector_status{{host=\"{bconf.split(',')[1]}\",port=\"{bconf.split(',')[2]}\"}} (\\d+)"
         filename = f"{self.uf_path()}/readsb/stats.prom"
         try:
-            readsb_status = open(filename, "r").read()
+            with open(filename, "r") as f:
+                readsb_status = f.read()
         except Exception:
             self._beast = T.Disconnected
             return

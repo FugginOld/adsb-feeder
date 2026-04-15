@@ -919,7 +919,7 @@ class Data:
 
         def adjust_heywhatsthat(value: list[Any]) -> list[str]:
             enabled = self.env_by_tags(["heywhatsthat", "is_enabled"])._value
-            if type(enabled) != list:
+            if not isinstance(enabled, list):
                 enabled = [enabled]
             new_value = []
             for i in range(len(value)):
@@ -927,14 +927,14 @@ class Data:
             return new_value
 
         def value_for_env(e: Env, value: Any) -> Union[str, bool, int]:
-            if type(value) == bool or "is_enabled" in e.tags:
+            if isinstance(value, bool) or "is_enabled" in e.tags:
                 value = adjust_bool(e, value)
 
             # the env vars have no concept of None, convert to empty string
             if value == None or value == "None":
                 value = ""
 
-            if type(value) == str:
+            if isinstance(value, str):
                 # remove spaces
                 value = value.strip()
 
@@ -958,7 +958,7 @@ class Data:
                         level=2,
                     )
 
-            if type(e._value) == list:
+            if isinstance(e._value, list):
                 if e._name == "FEEDER_HEYWHATSTHAT_ID":
                     actual_value = adjust_heywhatsthat(e._value)
                 else:
@@ -1017,9 +1017,9 @@ class Data:
     # Return only if there is one env with all the tags,
     # Raise error if there are more than one match
     def env_by_tags(self, _tags: Union[str, list[str]]) -> Env:
-        if type(_tags) == str:
+        if isinstance(_tags, str):
             tags = [_tags]
-        elif type(_tags) == list:
+        elif isinstance(_tags, list):
             tags = _tags
         else:
             raise Exception(f"env_by_tags called with invalid argument {_tags} of type {type(_tags)}")
@@ -1063,7 +1063,7 @@ class Data:
         else:
             tags_list = tags
         e = self._get_enabled_env_by_tags(tags_list)
-        if type(e._value) == list:
+        if isinstance(e._value, list):
             ret = is_true(e.list_get(0))
             print_err(f"is_enabled called on list: {e}[0] = {ret}")
             return ret

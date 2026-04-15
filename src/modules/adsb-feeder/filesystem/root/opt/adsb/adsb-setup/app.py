@@ -414,7 +414,7 @@ class AdsbIm:
         self.load_planes_seen_per_day()
 
         site_name_env = self._d.env_by_tags("site_name")
-        if type(site_name_env.value) == list:
+        if isinstance(site_name_env.value, list):
             while len(site_name_env.value) > self._d.env_by_tags("num_micro_sites").valueint + 1:
                 actual_len = len(site_name_env.value)
                 nominal_len = self._d.env_by_tags("num_micro_sites").valueint + 1
@@ -788,7 +788,7 @@ class AdsbIm:
         timezone = timezone.replace(" ", "_")
 
         tz_env = self._d.env("FEEDER_TZ")
-        if not tz_env or not type(tz_env.value) == list:
+        if not tz_env or not isinstance(tz_env.value, list):
             print_err(f"BAD CONFIG STATE, FEEDER_TZ is not a list")
             report_issue(
                 f"please report this to the maintainers, including the data from System->Share Diagnostics:"
@@ -1257,7 +1257,7 @@ class AdsbIm:
         self.update_version()
 
         tz_env = self._d.env("FEEDER_TZ")
-        if not tz_env or not type(tz_env.value) == list:
+        if not tz_env or not isinstance(tz_env.value, list):
             print_err(f"BAD CONFIG STATE, FEEDER_TZ is not a list")
             report_issue(
                 f"please report this to the maintainers, including the data from System->Share Diagnostics:"
@@ -1310,7 +1310,7 @@ class AdsbIm:
     def base_is_configured(self):
         base_config: set[Env] = {env for env in self._d._env if env.is_mandatory}
         for env in base_config:
-            if env._value == None or (type(env._value) == list and not env.list_get(0)):
+            if env._value == None or (isinstance(env._value, list) and not env.list_get(0)):
                 print_err(f"base_is_configured: {env} isn't set up yet")
                 return False
         return True
@@ -1509,7 +1509,7 @@ class AdsbIm:
         except Exception:
             print_err(f"sdr_config: got {value} and can't parse as JSON")
             return
-        if not type(sdr_data_list) == list:
+        if not isinstance(sdr_data_list, list):
             print_err(f"sdr_config: got {sdr_data_list} and not a list")
             return
         print_err(f"sdr_config: got {sdr_data_list}")
@@ -1724,7 +1724,7 @@ class AdsbIm:
             for t in self.microfeeder_setting_tags:
                 tags = t.split("--")
                 if all(t in e.tags for t in tags):
-                    if type(e._value) == list:
+                    if isinstance(e._value, list):
                         microsettings[t] = e.list_get(0)
                     else:
                         microsettings[t] = e._value
@@ -1756,7 +1756,7 @@ class AdsbIm:
                     match = re.search("<([^>]*)>", template_link)
                     if match:
                         agg_env = self._d.env(match.group(1))
-                        if not agg_env or not type(agg_env.value) == list:
+                        if not agg_env or not isinstance(agg_env.value, list):
                             print_err(f"BAD CONFIG STATE, {match.group(1)} is not a list")
                             report_issue(
                                 f"please report this to the maintainers, including the data from System->Share Diagnostics:"
@@ -1934,7 +1934,7 @@ class AdsbIm:
         # make sure that a site name is unique - if the idx is given that's
         # the current value and excluded from the check
         existing_names = self._d.env_by_tags("site_name")
-        if not existing_names or not type(existing_names.value) == list:
+        if not existing_names or not isinstance(existing_names.value, list):
             print_err(f"BAD CONFIG STATE, site_name is not a list")
             report_issue(
                 f"please report this to the maintainers, including the data from System->Share Diagnostics:"
@@ -2262,7 +2262,7 @@ class AdsbIm:
         # deal with env vars
         for e in self._d.stage2_envs:
             print_err(f"shifting {e.name} down and deleting last element {e._value}")
-            if not type(e._value) == list:
+            if not isinstance(e._value, list):
                 print_err(f"BAD CONFIG STATE, {e.name} is not a list")
                 report_issue(
                     f"please report this to the maintainers, including the data from System->Share Diagnostics:"
@@ -4036,7 +4036,7 @@ class AdsbIm:
                 self._d.env_by_tags("aggregators_chosen").value = True
                 self._d.env_by_tags(tags).list_set(sitenum, is_true(value))
             else:
-                if type(e._value) == list:
+                if isinstance(e._value, list):
                     old_value = e.list_get(sitenum)
                     e.list_set(sitenum, value)
                 else:
@@ -4203,7 +4203,7 @@ class AdsbIm:
 
         def uf_enabled(tag, m=0):
             # stack_info(f"tags are {type(tag)} {tag}")
-            if type(tag) == str:
+            if isinstance(tag, str):
                 tag = [tag]
             if type(tag) != list:
                 print_err(f"PROBLEM::: tag is {type(tag)}")
@@ -4211,7 +4211,7 @@ class AdsbIm:
 
         def others_enabled(tag, m=0):
             # stack_info(f"tags are {type(tag)} {tag}")
-            if type(tag) == str:
+            if isinstance(tag, str):
                 tag = [tag]
             if type(tag) != list:
                 print_err(f"PROBLEM::: tag is {type(tag)}")
@@ -4219,7 +4219,7 @@ class AdsbIm:
 
         def nonadsb_enabled(tag, m=0):
             # stack_info(f"tags are {type(tag)} {tag}")
-            if type(tag) == str:
+            if isinstance(tag, str):
                 tag = [tag]
             if type(tag) != list:
                 print_err(f"PROBLEM::: tag is {type(tag)}")

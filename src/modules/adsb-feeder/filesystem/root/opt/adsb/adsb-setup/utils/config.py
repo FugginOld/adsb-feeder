@@ -83,7 +83,7 @@ def write_values_to_env_file(values):
             # _ADSBIM_STATE variables aren't needed in the .env file
             if key.startswith("_ADSBIM_STATE"):
                 continue
-            if type(value) == list:
+            if isinstance(value, list):
                 print_err(f"WARNING: ==== key {key} has list value {value}")
                 for i in range(len(value)):
                     suffix = "" if i == 0 else f"_{i}"

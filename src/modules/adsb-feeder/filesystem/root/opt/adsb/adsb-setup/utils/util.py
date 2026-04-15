@@ -17,6 +17,10 @@ from uuid import UUID
 import requests
 from flask import flash
 
+# Disable IPv6 for all requests globally: some embedded systems lack IPv6 routing,
+# which causes long timeouts when urllib3 tries AF_INET6 first.
+requests.packages.urllib3.util.connection.HAS_IPV6 = False  # type: ignore[attr-defined]
+
 # Import paths after they might be configured
 try:
     from .paths import FAKE_CPUINFO_DIR, FAKE_THERMAL_TEMP_FILE, FAKE_THERMAL_ZONE_DIR, MACHINE_ID_FILE, VERBOSE_FILE
@@ -126,7 +130,7 @@ def is_true(value: Any) -> bool:
     For strings, only 'true', 'on', '1' (case-insensitive) are considered true.
     For other types, uses standard bool() conversion.
     """
-    if type(value) == str:
+    if isinstance(value, str):
         return value.lower() in ["true", "on", "1"]
     return bool(value)
 
@@ -161,7 +165,6 @@ def generic_get_json(url: str, data: Optional[Any] = None, timeout: float = 5.0)
     Returns:
         Tuple of (json_response or None, status_code or error_number)
     """
-    requests.packages.urllib3.util.connection.HAS_IPV6 = False  # type: ignore[attr-defined]
     if "host.docker.internal" in url:
         url = url.replace("host.docker.internal", "localhost")
     # use image specific but random value for user agent to distinguish
@@ -190,7 +193,7 @@ def generic_get_json(url: str, data: Optional[Any] = None, timeout: float = 5.0)
         status = err.errno if err.errno else -1
     except Exception:
         # for some reason this didn't work
-        print_err("checking {url} failed:")
+        print_err(f"checking {url} failed:")
         print_err(traceback.format_exc())
     else:
         return json_response, response.status_code
@@ -356,7 +359,6 @@ def get_plain_url(plain_url: str, method: str = "GET", data: Optional[str] = Non
     Returns:
         Tuple of (response_text or None, status_code or error_number)
     """
-    requests.packages.urllib3.util.connection.HAS_IPV6 = False  # type: ignore[attr-defined]
     status = -1
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0",
@@ -383,7 +385,7 @@ def get_plain_url(plain_url: str, method: str = "GET", data: Optional[str] = Non
         print_err(f"checking {plain_url} failed: {err}")
         status = err.errno if err.errno else -1
     except Exception:
-        print_err("checking {plain_url} failed: {traceback.format_exc()}")
+        print_err(f"checking {plain_url} failed: {traceback.format_exc()}")
     else:
         return response.text, response.status_code
     return None, status

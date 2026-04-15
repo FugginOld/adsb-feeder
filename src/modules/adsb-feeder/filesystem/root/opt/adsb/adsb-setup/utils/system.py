@@ -9,6 +9,11 @@ from typing import Callable, Optional
 
 import requests
 
+# util.py already sets HAS_IPV6 = False at module level; mirror it here since
+# system.py imports requests independently and the flag must be set before any
+# request is made from this module as well.
+requests.packages.urllib3.util.connection.HAS_IPV6 = False  # type: ignore[attr-defined]
+
 from .data import Data
 from .paths import ADSB_SCRIPTS_DIR, DOCKER_COMPOSE_ADSB_SCRIPT, DOCKER_COMPOSE_START_SCRIPT
 from .util import print_err, run_shell_captured
@@ -216,7 +221,6 @@ class System:
         if self.external_ip and time.time() < self.external_ip_timestamp + 1 * 60:
             return self.external_ip
 
-        requests.packages.urllib3.util.connection.HAS_IPV6 = False  # type: ignore[attr-defined]
         try:
             response = requests.get(url="http://api.ipify.org", timeout=10.0)
 
