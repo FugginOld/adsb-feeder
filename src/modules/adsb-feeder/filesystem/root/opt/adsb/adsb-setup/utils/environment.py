@@ -28,7 +28,7 @@ class Env:
         else:
             self._default = default
 
-        if type(self._default) == list:
+        if isinstance(self._default, list):
             self._value = [self._default[0]]
         else:
             self._value = self._default
@@ -50,19 +50,19 @@ class Env:
 
             if pull and value_in_file != None:
                 if self._default != None and type(value_in_file) != type(self._default):
-                    if type(self._default) == bool:
+                    if isinstance(self._default, bool):
                         self._value = is_true(value_in_file)
                         return
-                    if type(self._default) == list and len(self._default) > 0:
+                    if isinstance(self._default, list) and len(self._default) > 0:
                         if type(self._default[0]) == type(value_in_file):
                             self._value = [value_in_file]
                             stack_info(f"converting {self._name} to list {self._value}")
                             return
-                        if type(self._default[0]) == bool and (value_in_file.lower() in ["true", "false", "0", "1"]):
+                        if isinstance(self._default[0], bool) and (value_in_file.lower() in ["true", "false", "0", "1"]):
                             self._value = [is_true(value_in_file)]
                             stack_info(f"converting {self._name} to list {self._value}")
                             return
-                    if type(self._default) == float and type(value_in_file) == int:
+                    if isinstance(self._default, float) and type(value_in_file) == int:
                         self._value = float(value_in_file)
                         return
                     if type(self._default) == int and type(value_in_file) == str:
@@ -75,7 +75,7 @@ class Env:
                         f"got value {value_in_file} of type {type(value_in_file)} from file - discarding as type of {self._name} should be {type(self._default)}"
                     )
                 else:
-                    if type(value_in_file) == list and self.is_bool:
+                    if isinstance(value_in_file, list) and self.is_bool:
                         self._value = [is_true(v) for v in value_in_file]
                         return
                     self._value = value_in_file
@@ -119,7 +119,7 @@ class Env:
 
     @property
     def is_list(self) -> bool:
-        return type(self._default) == list
+        return isinstance(self._default, list)
 
     @property
     def valuestr(self):
@@ -150,7 +150,7 @@ class Env:
         elif self._value != None:
             return self._value
         elif self._default != None:
-            if type(self._default) == list:
+            if isinstance(self._default, list):
                 return [self._default[0]]
             else:
                 return self._default
@@ -163,7 +163,7 @@ class Env:
         if self.is_bool:
             value = is_true(value)
 
-        if type(self._default) == float:
+        if isinstance(self._default, float):
             try:
                 value = float(value)
             except Exception:
@@ -173,12 +173,12 @@ class Env:
         # stupid Python with its complex data types... modifying a list in the app
         # already modifies the existing object in memory - so we need to force a comparison
         # to the value in the file
-        if type(self._value) == list:
+        if isinstance(self._value, list):
             stack_info(f"WAIT == using standard setter to assign a list {self} -- {value} -- {type(value)}")
             self.list_set(0, value)
             self._reconcile(value)
             return
-        if value != self._value:  # was 'type(self._value) == list or ...'; list case already returned above
+        if value != self._value:  # was 'isinstance(self._value, list) or ...'; list case already returned above
             self._value = value
             self._reconcile(value)
 
@@ -186,7 +186,7 @@ class Env:
         # make sure we have at least idx + 1 values, padding with default if necessary
         # only call after you verified that this env is a list and idx is an int
         # internal function - does not reconcile
-        if type(self._value) != list:
+        if not isinstance(self._value, list):
             stack_info(f"{self._name} is not a list")
             report_issue(
                 f"please report this to the maintainers, including the data from System->Share Diagnostics: "
@@ -195,7 +195,7 @@ class Env:
             return
         if idx >= len(self._value):
             d = None
-            if type(self._default) != list:
+            if not isinstance(self._default, list):
                 print_err(f"{self._name}: default type should be list: {type(self._default)}, using None as default")
             elif len(self._default) == 0:
                 print_err(f"{self._name}: default list len should be 1: {len(self._default)}")
@@ -210,7 +210,7 @@ class Env:
         if self.is_bool:
             value = is_true(value)
         idx = make_int(idx)
-        if type(self._value) != list:
+        if not isinstance(self._value, list):
             stack_info(f"{self._name} is not a list, converting")
             self._value = [self._value]
             self.list_set(idx, value)
@@ -229,20 +229,20 @@ class Env:
 
     def list_get(self, idx):
         idx = make_int(idx)
-        if type(self._value) != list:
+        if not isinstance(self._value, list):
             stack_info(f"{self._name} is not a list, converting")
             self._value = [self._value]
         if idx < len(self._value):
             return self._value[idx]
-        if type(self._default) == list and len(self._default) == 1:
+        if isinstance(self._default, list) and len(self._default) == 1:
             while len(self._value) <= idx:
                 self._value.append(self._default[0])
             self._reconcile(self._value)  # moved outside while loop; was doing file I/O per pad element
             return self._value[idx]
 
-        if type(self._default) != list:
+        if not isinstance(self._default, list):
             print_err(f"{self._name}: default type should be list: {type(self._default)}")
-        if type(self._default) == list and len(self._default) != 1:
+        if isinstance(self._default, list) and len(self._default) != 1:
             print_err(f"{self._name}: default list len should be 1: {len(self._default)}")
 
         stack_info(f"{self._name} only has {len(self._value)} values and no default, asking for {idx}")
@@ -250,7 +250,7 @@ class Env:
 
     def list_remove(self, idx=-1):
         idx = make_int(idx)
-        if type(self._value) != list:
+        if not isinstance(self._value, list):
             print_err(f"{self._name} is not a list, giving up")
             return
         if idx == -1:
@@ -262,7 +262,7 @@ class Env:
     def list_move(self, from_idx, to_idx):
         from_idx = make_int(from_idx)
         to_idx = make_int(to_idx)
-        if type(self._value) != list:
+        if not isinstance(self._value, list):
             print_err(f"{self._name} is not a list, giving up")
             return
         # make sure the list is long enough for the operation to complete, padding with default if necessary

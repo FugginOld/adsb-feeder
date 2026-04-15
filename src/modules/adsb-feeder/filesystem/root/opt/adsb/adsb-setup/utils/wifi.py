@@ -33,9 +33,9 @@ class Wifi:
 
     def wait_wpa_supplicant(self):
         # wait for wpa_supplicant to be running
-        startTime = time.time()
+        start_time = time.time()
         success = False
-        while time.time() - startTime < 45:
+        while time.time() - start_time < 45:
             success, output = run_shell_captured("pgrep wpa_supplicant", timeout=5)
             time.sleep(1)
             if success:
@@ -62,10 +62,10 @@ class Wifi:
                 return False
             os.set_blocking(proc.stdout.fileno(), False)
 
-            startTime = time.time()
-            reconfigureSent = False
+            start_time = time.time()
+            reconfigure_sent = False
             reconfigured = False
-            while time.time() - startTime < 20:
+            while time.time() - start_time < 20:
                 line = proc.stdout.readline()
                 if not line:
                     time.sleep(0.01)
@@ -73,10 +73,10 @@ class Wifi:
 
                 output += line
                 # print_err(f"wpa_cli: {line.rstrip()})")
-                if not reconfigureSent and line.startswith(">"):
+                if not reconfigure_sent and line.startswith(">"):
                     proc.stdin.write("reconfigure\n")
                     proc.stdin.flush()
-                    reconfigureSent = True
+                    reconfigure_sent = True
                 if "reconfigure" in line:
                     reconfigured = True
                 if reconfigured and "CTRL-EVENT-CONNECTED" in line:
@@ -110,8 +110,8 @@ class Wifi:
                 return []
             os.set_blocking(proc.stdout.fileno(), False)
 
-            startTime = time.time()
-            while time.time() - startTime < 15:
+            start_time = time.time()
+            while time.time() - start_time < 15:
                 line = proc.stdout.readline()
                 if not line:
                     time.sleep(0.01)
@@ -127,8 +127,8 @@ class Wifi:
                     proc.stdin.flush()
                     break
 
-            startTime = time.time()
-            while time.time() - startTime < 1:
+            start_time = time.time()
+            while time.time() - start_time < 1:
                 line = proc.stdout.readline()
                 if not line:
                     time.sleep(0.01)
@@ -156,15 +156,15 @@ class Wifi:
             # extract the existing network blocks from the config file
             with open(path, "r") as conf:
                 lines = conf.readlines()
-                inBlock = False
+                in_block = False
                 for line in lines:
                     if line.strip().startswith("network="):
-                        if inBlock:
+                        if in_block:
                             raise SyntaxError("nested network block")
                         netblock = ""
                         exist_ssid = None
-                        inBlock = True
-                    if inBlock:
+                        in_block = True
+                    if in_block:
                         if "ssid" in line:
                             exist_ssid = line.split('"')[1]
                         if "priority" in line:
@@ -174,9 +174,9 @@ class Wifi:
                             line = p1 + f"={int(p2) - 1}"
                         netblock += line.rstrip() + "\n"
                     if "}" in line:
-                        if not inBlock or not exist_ssid:
+                        if not in_block or not exist_ssid:
                             raise SyntaxError("unexpected close of network block")
-                        inBlock = False
+                        in_block = False
                         netblocks[exist_ssid] = netblock
         except Exception:
             print_err(traceback.format_exc())
@@ -218,17 +218,17 @@ pmf=1
 
     def dietpi_add_wifi_hotplug(self):
         # enable dietpi wifi in case it is disabled
-        changedInterfaces = False
+        changed_interfaces = False
         with open("/etc/network/interfaces", "r") as current, open("/etc/network/interfaces.new", "w") as update:
             lines = current.readlines()
             for line in lines:
                 if line.startswith("#") and "allow-hotplug" in line and self.wlan in line:
-                    changedInterfaces = True
+                    changed_interfaces = True
                     update.write(f"allow-hotplug {self.wlan}\n")
                 else:
                     update.write(f"{line}")
 
-        if changedInterfaces:
+        if changed_interfaces:
             print_err(f"uncommenting allow-hotplug for {self.wlan}")
             os.rename("/etc/network/interfaces.new", "/etc/network/interfaces")
             self.restart_networking_noblock()
@@ -263,8 +263,8 @@ pmf=1
             # this is apparently necessary for NetworkManager
             self.scan_ssids()
             # try for a while because it takes a bit for NetworkManager to come back up
-            startTime = time.time()
-            while time.time() - startTime < 20:
+            start_time = time.time()
+            while time.time() - start_time < 20:
                 try:
                     result = subprocess.run(
                         [
