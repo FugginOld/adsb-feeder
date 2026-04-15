@@ -64,7 +64,10 @@ tests/
     ├── test_config.py                 # Configuration module tests
     ├── test_data.py                   # Data class tests
     ├── test_environment.py            # Environment variable tests
+    ├── test_auth.py                   # Authentication utility tests
+    ├── test_background.py             # Background scheduler tests
     ├── test_flask.py                  # Flask utilities tests
+    ├── test_multioutline.py           # Multi-outline merge tests
     ├── test_netconfig.py              # Network configuration tests
     ├── test_paths.py                  # Path configuration tests
     ├── test_sdr.py                    # SDR module tests
@@ -91,7 +94,9 @@ were removed in favor of comprehensive unit tests with proper mocking.
 | **data.py** | 53% | 20 | ⚠️ Needs improvement |
 | **other_aggregators.py** | 39% | 43 | ⚠️ Needs improvement |
 | **netconfig.py** | 29% | 28 | ❌ Needs work |
-| **background.py** | 29% | 0 | ❌ No tests |
+| **auth.py** | 96% | 10 | ✅ Great |
+| **background.py** | 100% | 5 | ✅ Complete |
+| **multioutline.py** | 64% | 9 | ✅ Good |
 | **agg_status.py** | 22% | 0 | ❌ No tests |
 | **app.py** | 24% | 51 | ❌ Large surface area |
 
