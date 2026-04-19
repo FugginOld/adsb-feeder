@@ -10,7 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        base_image: [debian:stable-slim, ubuntu:22.04, alpine:latest]
+        include:
+          - base_image: debian:stable-slim
+            dockerfile: ./Dockerfile
+            tag: debian
+          - base_image: ubuntu:22.04
+            dockerfile: ./Dockerfile
+            tag: ubuntu
+          - base_image: alpine:latest
+            dockerfile: ./Dockerfile.alpine
+            tag: alpine
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,11 +40,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ${{ matrix.dockerfile }}
           build-args: |
             BASE_IMAGE=${{ matrix.base_image }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            fugginold/adsb-feeder:${{ matrix.base_image == 'debian:stable-slim' && 'debian' || matrix.base_image == 'ubuntu:22.04' && 'ubuntu' || 'alpine' }}
+            fugginold/adsb-feeder:${{ matrix.tag }}
             fugginold/adsb-feeder:latest

@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+
+FROM alpine:latest
+
+LABEL maintainer="FugginOld <dockerhub@fugginold.com>"
+LABEL org.opencontainers.image.source="https://github.com/FugginOld/adsb-feeder"
+
+# Install dependencies (Alpine uses apk)
+RUN apk add --no-cache \
+    ca-certificates \
+    curl \
+    python3 \
+    py3-pip \
+    socat \
+    rtl-sdr \
+    gnupg \
+    docker-cli-compose
+
+# Copy application code and configs
+COPY src/modules/adsb-feeder/filesystem/root/opt/adsb /opt/adsb
+WORKDIR /opt/adsb
+
+# Install Python requirements if present
+RUN if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+
+# Expose common ports (adjust as needed)
+EXPOSE 8080 30001 30002 30003 32006 30004 30104 30005 30006 30047 30152 31003 31004 31005 31006
+
+# Entrypoint: run the full stack using docker-compose
+CMD ["docker-compose", "-f", "docker-compose.yml", "up"]
