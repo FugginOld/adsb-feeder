@@ -117,7 +117,7 @@ Download the `adsb-im-x86-64-vm-*-Hyper-V-x86_64.vhdx.xz` for the latest release
 - connect to your Proxmox host web UI and log in
 - select your host in the left pane, then in the center pane click on `>_ Shell` to open a web shell
 - make a directory and cd there: `mkdir -p ~/adsbim; cd ~/adsbim`
-- download the x86-64-vm Proxmox image (use the URL for the current version): `wget -O adsb-im-vm.tar.xz https://github.com/dirkhh/adsb-feeder-image/releases/download/v3.0.4/adsb-im-x86-64-vm-v3.0.4-proxmox.tar.xz`
+- download the x86-64-vm Proxmox image (use the URL for the current version): `wget -O adsb-im-vm.tar.xz https://github.com/FugginOld/adsb-feeder/releases/download/v3.0.4/adsb-im-x86-64-vm-v3.0.4-proxmox.tar.xz`
 - unpack the image and create a fresh VM: `tar xJf adsb-im-vm.tar.xz && bash ./pve-vmcreate.sh -s 16G -p local-lvm:0`
 - optional: remove the download: `cd && rm -rf ~/adsbim`
 - after this process completes, you should see the new VM in the Proxmox web UI
@@ -127,9 +127,9 @@ Download the `adsb-im-x86-64-vm-*-Hyper-V-x86_64.vhdx.xz` for the latest release
 
 ## Feed from most Linux systems
 
-You can also install this software stack as an app on an existing Linux system. If you are running DietPi as the Linux OS on your system, you can simply install it using `dietpi-software` (it's app 141). Otherwise you can run a small [install script](https://raw.githubusercontent.com/dirkhh/adsb-feeder-image/main/src/tools/app-install.sh). For the trusting kinda people, all you need to do is
+You can also install this software stack as an app on an existing Linux system. If you are running DietPi as the Linux OS on your system, you can simply install it using `dietpi-software` (it's app 141). Otherwise you can run a small [install script](https://raw.githubusercontent.com/FugginOld/adsb-feeder/main/src/tools/app-install.sh). For the trusting kinda people, all you need to do is
 ```
-curl https://raw.githubusercontent.com/dirkhh/adsb-feeder-image/main/src/tools/app-install.sh | sudo bash
+curl https://raw.githubusercontent.com/FugginOld/adsb-feeder/main/src/tools/app-install.sh | sudo bash
 ```
 Or you could do the more sensible thing of downloading the script, reading it, and then executing it.
 
@@ -148,4 +148,4 @@ This requires [CustomPiOS](https://github.com/guysoft/CustomPiOS) - unpack this 
 
 ## python app
 
-If you are looking for the sources to the adsb-setup app, they are at [src/modules/adsb-feeder/filesystem/root/opt/adsb/adsb-setup](https://github.com/dirkhh/adsb-feeder-image/tree/master/src/modules/adsb-feeder/filesystem/root/opt/adsb/adsb-setup)
+If you are looking for the sources to the adsb-setup app, they are at [src/modules/adsb-feeder/filesystem/root/opt/adsb/adsb-setup](https://github.com/FugginOld/adsb-feeder/tree/master/src/modules/adsb-feeder/filesystem/root/opt/adsb/adsb-setup)
