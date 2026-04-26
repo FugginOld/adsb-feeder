@@ -85,7 +85,7 @@ As well as a number of commercial AIS aggregators
 - invest in a decent power supply - we strongly recommend against attempting to power these boards from a powered hub or a cheap 'charger' plug, not having a stable 5V power source tends to be the biggest cause of issues with these SBC
 - get an SDR and antenna. There are many many choices. Availability may differ depending on where you are. But often a generic SDR and
 an indoor or (much better) outdoor antenna is all you need. More detail on the [ADSB.im website](https://adsb.im/supported).
-- download the current release from the [Release section](https://github.com/dirkhh/adsb-feeder-image/releases/latest)
+- download the current release from the [Release section](https://github.com/FugginOld/adsb-feeder/releases/latest)
 - use a tool like the [Raspberry Pi Imager](https://github.com/raspberrypi/rpi-imager/releases) to write the image to a µSD card on your computer (if you are using a Raspberry Pi board, you can skip the previous download step as the ADS-B / SDR Feeder Image is available as an option as part of the Raspberry Pi Imager).
 - the standard Raspbian based images for Raspberry Pis allow configuring WiFi during image write with the Pi Imager, but in most cases it is easier to simply use the Hotspot method to connect to the image after boot and then set up the WiFi from a web browser. Simply wait after the first boot until you see a WiFi network called `adsb-feeder-image` - mode details at the [adsb.im Hotspot page](https://adsb.im/hotspot)
 - boot from the image
