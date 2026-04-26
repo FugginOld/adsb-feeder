@@ -1,8 +1,10 @@
+# Warning
+
+This is a derivative work of adsb.im and is purely for my testing purposes. All credit goes towards the orginal creator/contributors of ADSB.IM.
+
 # ADS-B / SDR Feeder Image
 
 <a href="https://adsb.im/home"><img src="https://adsb.im/static/images/adsb.im.logo.png" height="200" alt="adsb.im homepage"></a>
-
-[Introduction Videos](https://www.youtube.com/@adsb)
 
 ## The easiest way to track nearby aircraft, ships, and weather balloons with your own hardware and share with others
 
