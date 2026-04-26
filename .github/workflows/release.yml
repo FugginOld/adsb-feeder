@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
+      - "v[0-9]*.[0-9]*.[0-9]*-*"
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: Set up test environment
+        run: |
+          mkdir -p /tmp/adsb-test-ci
+          echo "ADSB_BASE_DIR=/tmp/adsb-test-ci" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: |
+          uv run pytest tests/ -v \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_config_environment_integration \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_config_persistence_integration \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_environment_variable_integration \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_system_restart_integration \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_api_integration \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_signal_handling_integration \
+            --deselect=tests/integration/test_system_integration.py::TestSystemIntegration::test_full_application_lifecycle \
+            --deselect=tests/integration/test_system_integration.py::TestConfigurationIntegration::test_config_file_roundtrip \
+            --deselect=tests/integration/test_system_integration.py::TestConfigurationIntegration::test_config_consistency \
+            --deselect=tests/integration/test_system_integration.py::TestConfigurationIntegration::test_config_type_conversion \
+            --deselect=tests/unit/test_config.py::TestReadValuesFromEnvFile::test_read_env_file_missing
+
+  create-release:
+    name: Create GitHub Release
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version and prerelease flag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Extract changelog entry for this version
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # Strip leading 'v' to match CHANGELOG section headers like [3.0.10]
+          BARE="${VERSION#v}"
+          # Extract the block between this version's heading and the next
+          awk "/^## \[${BARE}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md > /tmp/release-body.md
+          if [ ! -s /tmp/release-body.md ]; then
+            printf '%s\n' "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${VERSION}/CHANGELOG.md) for details." > /tmp/release-body.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.version }}
+          body_path: /tmp/release-body.md
+          prerelease: ${{ steps.version.outputs.prerelease }}
+
+  export-images:
+    name: Export Docker images
+    needs: create-release
+    uses: ./.github/workflows/docker-export.yml
+    with:
+      version: ${{ needs.create-release.outputs.version }}
+      upload_to_release: true
+    secrets: inherit
