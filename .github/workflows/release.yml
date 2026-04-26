@@ -3,8 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
-      - "v[0-9]+.[0-9]+.[0-9]+-*"
+      - "v[0-9]*.[0-9]*.[0-9]*"
+      - "v[0-9]*.[0-9]*.[0-9]*-*"
 
 permissions:
   contents: write
@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
@@ -70,12 +75,10 @@ jobs:
           # Strip leading 'v' to match CHANGELOG section headers like [3.0.10]
           BARE="${VERSION#v}"
           # Extract the block between this version's heading and the next
-          NOTES=$(awk "/^## \[${BARE}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
-          if [ -z "$NOTES" ]; then
-            NOTES="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${VERSION}/CHANGELOG.md) for details."
+          awk "/^## \[${BARE}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md > /tmp/release-body.md
+          if [ ! -s /tmp/release-body.md ]; then
+            printf '%s\n' "See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${VERSION}/CHANGELOG.md) for details." > /tmp/release-body.md
           fi
-          # Write to a temp file so multiline content is safe
-          echo "${NOTES}" > /tmp/release-body.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

@@ -76,17 +76,21 @@ jobs:
 
       # ── DockerHub push ────────────────────────────────────────────────────
       # Builds both platforms in one pass and pushes to the registry.
-      # Tags:  <variant>-<version>  (e.g. debian-v1.2.3)
-      #        <variant>            (e.g. debian  — latest for this variant)
-      #        latest               (only on the default/debian variant)
+      # Tags:  <variant>-<version>  (e.g. debian-v1.2.3) — always pushed
+      #        <variant>            (e.g. debian) — stable releases only
+      #        latest               (default/debian variant, stable releases only)
       - name: Compute DockerHub tags
         id: tags
         run: |
           VERSION="${{ inputs.version }}"
           VARIANT="${{ matrix.variant }}"
-          TAGS="fugginold/adsb-feeder:${VARIANT}-${VERSION}"$'\n'"fugginold/adsb-feeder:${VARIANT}"
-          if [ "${{ matrix.is_default }}" = "true" ]; then
-            TAGS="${TAGS}"$'\n'"fugginold/adsb-feeder:latest"
+          TAGS="fugginold/adsb-feeder:${VARIANT}-${VERSION}"
+
+          if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            TAGS="${TAGS}"$'\n'"fugginold/adsb-feeder:${VARIANT}"
+            if [ "${{ matrix.is_default }}" = "true" ]; then
+              TAGS="${TAGS}"$'\n'"fugginold/adsb-feeder:latest"
+            fi
           fi
           echo "tags<<EOF" >> $GITHUB_OUTPUT
           echo "${TAGS}" >> $GITHUB_OUTPUT
